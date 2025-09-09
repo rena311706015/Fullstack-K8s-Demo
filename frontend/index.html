@@ -11,9 +11,7 @@
   <script>
     function submit() {
       const content = document.getElementById("msg").value;
-        //   8000 為 backend 開放的 port
-      fetch("http://192.168.49.2:30368/submit", {
-      // fetch("http://localhost:8000/submit", {
+      fetch("/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content })

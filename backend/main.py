@@ -1,18 +1,16 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, inspect
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 import os
 
 app = FastAPI()
-origins = [
-    "http://localhost:8080",
-]
 
+cors_origin = os.environ.get("CORS_ORIGIN", "http://localhost:8080")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],    
     allow_headers=["*"],  
@@ -21,7 +19,6 @@ app.add_middleware(
 DB_URL = f"mysql+pymysql://{os.environ['DB_USER']}:{os.environ['DB_PASSWORD']}@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
 engine = create_engine(DB_URL)
 Base = declarative_base()
-# Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(bind=engine)
 
 class Message(Base):
@@ -29,6 +26,15 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(String(255))
     timestamp = Column(DateTime)
+
+@app.on_event("startup")
+def on_startup():
+    inspector = inspect(engine)
+    if not inspector.has_table("messages"):
+        Base.metadata.create_all(engine)
+        print("✅ 'messages' table created")
+    else:
+        print("ℹ️ 'messages' table already exists")
 
 @app.post("/submit")
 async def submit(request: Request):
