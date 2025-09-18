@@ -22,14 +22,14 @@
 5. 啟用 ingress
     1. `minikube addons enable ingress`
     2. `minikube ip` 複製 ip 位置後
-    3. `sudo nano /etc/hosts` 最底下新增 `<ip> quarkusapp.minikube.local`
+    3. `sudo nano /etc/hosts` 最底下新增 `<ip> app.test`
 6. apply 所有生成的 yaml
     
     `kubectl apply -f .`
     
 7. 測試服務
     
-    開啟 https://quarkusapp.minikube.local
+    開啟 https://app.test
     
 8. 檢查資料庫
     1. `kubectl exec -it <db-pod-name> -- bash`
